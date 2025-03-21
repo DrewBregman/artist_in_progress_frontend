@@ -7,62 +7,14 @@ export async function ingestText(text) {
   formData.append("text", text);
   const res = await fetch(`${BACKEND_URL}/ingest-text`, {
     method: "POST",
-    body: formData
+    body: formData,
+    headers: {
+      'Accept': 'application/json',
+    },
+    mode: 'cors'
   });
   if (!res.ok) {
     throw new Error(`Ingest error: ${res.statusText}`);
-  }
-  return res.json();
-}
-
-// Load example docs
-export async function loadExampleDocs() {
-  const res = await fetch(`${BACKEND_URL}/example-load`, { method: "POST" });
-  if (!res.ok) {
-    throw new Error(`Error loading examples: ${res.statusText}`);
-  }
-  return res.json();
-}
-
-// Detect art style
-export async function detectArtStyle(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  const res = await fetch(`${BACKEND_URL}/detect-art`, {
-    method: "POST",
-    body: formData
-  });
-  if (!res.ok) {
-    throw new Error(`Art detect error: ${res.statusText}`);
-  }
-  return res.json();
-}
-
-// Ask about art - RAG pipeline
-export async function askAboutArt({
-  query,
-  stylePrediction,
-  creativeStoryMode,
-  sessionId,
-  topK
-}) {
-  const formData = new FormData();
-  formData.append("query", query);
-  if (stylePrediction) {
-    formData.append("style_prediction", stylePrediction);
-  }
-  formData.append("creative_story_mode", creativeStoryMode);
-  if (sessionId) {
-    formData.append("session_id", sessionId);
-  }
-  formData.append("top_k", topK);
-
-  const res = await fetch(`${BACKEND_URL}/ask-about-art`, {
-    method: "POST",
-    body: formData
-  });
-  if (!res.ok) {
-    throw new Error(`Ask about art error: ${res.statusText}`);
   }
   return res.json();
 }
@@ -80,7 +32,12 @@ export async function analyzeArtwork(file, topK = 3, threshold = 0.2, useGptSumm
     
     const response = await fetch(`${BACKEND_URL}/ask-image`, {
       method: "POST",
-      body: formData
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors'
     });
     
     if (!response.ok) {
@@ -97,59 +54,81 @@ export async function analyzeArtwork(file, topK = 3, threshold = 0.2, useGptSumm
   }
 }
 
-// Test Exa API integration
-export async function testExaSearch(query, maxResults = 3) {
-  // Use URLSearchParams to properly encode query parameters
-  const params = new URLSearchParams({
-    query: query,
-    max_results: maxResults
-  });
-  
-  const res = await fetch(`${BACKEND_URL}/test-exa?${params.toString()}`, {
-    method: "POST"
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Exa search error: ${res.statusText}`);
-  }
-  
-  return res.json();
-}
-
-// Test OpenAI API integration
-export async function testOpenAI(prompt, useEmbeddings = false) {
-  // Use URLSearchParams to properly encode query parameters
-  const params = new URLSearchParams({
-    prompt: prompt,
-    use_embeddings: useEmbeddings
-  });
-  
-  const res = await fetch(`${BACKEND_URL}/test-openai?${params.toString()}`, {
-    method: "POST"
-  });
-  
-  if (!res.ok) {
-    throw new Error(`OpenAI API error: ${res.statusText}`);
-  }
-  
-  return res.json();
-}
-
-// Compare user art to artists with Exa integration for tips
-export async function compareUserArt(file, topK = 3, requestTips = true) {
+// Get just the artist name quickly
+export async function getArtistNameOnly(file, topK = 3, threshold = 0.2) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("top_k", topK);
-  formData.append("request_tips", requestTips);
-  
-  const res = await fetch(`${BACKEND_URL}/compare-user-art`, {
-    method: "POST",
-    body: formData
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Art comparison error: ${res.statusText}`);
+  formData.append("threshold", threshold);
+
+  try {
+    console.log(`Quick artist name check for: ${file.name}`);
+    
+    const response = await fetch(`${BACKEND_URL}/artist-name-only`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors'
+    });
+    
+    if (!response.ok) {
+      const errMsg = await response.text();
+      throw new Error(`Error: ${response.status} - ${errMsg}`);
+    }
+    
+    const data = await response.json();
+    return data.artist_name;
+  } catch (err) {
+    console.error("Artist name lookup error:", err);
+    throw err;
   }
-  
-  return res.json();
+}
+
+// Health check endpoint
+export async function checkHealth() {
+  try {
+    const response = await fetch(`${BACKEND_URL}/health`, {
+      method: "GET",
+      headers: {
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Health check error:", err);
+    throw err;
+  }
+}
+
+// Debug CORS settings
+export async function debugCors() {
+  try {
+    const response = await fetch(`${BACKEND_URL}/debug-cors`, {
+      method: "GET",
+      headers: {
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`CORS debug failed: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("CORS debug error:", err);
+    throw err;
+  }
 }
