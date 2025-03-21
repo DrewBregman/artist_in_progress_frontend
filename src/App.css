@@ -1,0 +1,139 @@
+/* App-specific styles to complement the global styles in index.css */
+
+/* Container styling */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* File input styling */
+.file-input {
+  display: none;
+}
+
+/* Drop zone transitions */
+.drop-zone {
+  transition: all 0.2s ease-in-out;
+}
+
+.drop-zone-active {
+  border-color: #1a365d;
+  background-color: rgba(26, 54, 93, 0.04);
+  transform: scale(1.02);
+}
+
+/* Loading button animation */
+.loading-spinner {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Image preview styling */
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Analysis results formatting */
+.results-container {
+  overflow-y: auto;
+  max-height: 500px;
+  padding-right: 0.5rem;
+}
+
+.result-paragraph {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+
+.result-bullet {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.result-bullet::before {
+  content: '•';
+  margin-right: 0.5rem;
+}
+
+/* How it works section */
+.how-it-works {
+  margin-bottom: 1.5rem;
+}
+
+.tips-container {
+  background-color: #2c5282;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  color: white;
+}
+
+.tips-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.tips-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.tips-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+  
+  .image-preview {
+    max-height: 250px;
+  }
+  
+  .results-container {
+    max-height: 400px;
+  }
+}
+
+/* Print styles for analysis results */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .drop-zone, 
+  .action-button,
+  .how-it-works {
+    display: none;
+  }
+  
+  .results-container {
+    max-height: none;
+    overflow: visible;
+  }
+}
