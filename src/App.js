@@ -14,13 +14,13 @@ import {
   useMediaQuery,
   AppBar,
   Toolbar,
-  IconButton,
   Alert
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { dark } from "@clerk/themes";
 import { UploadFile, UploadFileOutlined, Info } from "@mui/icons-material";
+import { analyzeArtwork } from "./api";
 
 // Create a minimal dark theme
 const theme = createTheme({
@@ -174,36 +174,6 @@ const theme = createTheme({
     }
   }
 });
-
-// Helper function to call /ask-image API
-async function analyzeArtwork(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("top_k", 3);
-  formData.append("threshold", 0.2);
-  formData.append("use_gpt_summary", true);
-
-  try {
-    console.log(`Analyzing artwork: ${file.name} (${Math.round(file.size / 1024)} KB)`);
-    
-    const response = await fetch("http://localhost:8000/ask-image", {
-      method: "POST",
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const errMsg = await response.text();
-      throw new Error(`Error: ${response.status} - ${errMsg}`);
-    }
-    
-    const data = await response.json();
-    console.log("Analysis complete:", Object.keys(data));
-    return data;
-  } catch (err) {
-    console.error("Analysis error:", err);
-    throw err;
-  }
-}
 
 // Function to format the results from backend
 function formatResults(results) {
@@ -899,7 +869,7 @@ function App() {
       <AppBar position="static" elevation={0}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            ArtAnalyze
+            ARTIST LOADING
           </Typography>
           <Box>
             <SignedOut>
@@ -996,7 +966,7 @@ function App() {
           }}>
             <Divider sx={{ mb: 3 }} />
             <Typography variant="body2" color="text.secondary">
-              © {new Date().getFullYear()} ArtAnalyze • AI-Powered Artwork Analysis
+              © {new Date().getFullYear()} ARTIST LOADING
             </Typography>
           </Box>
         </Container>

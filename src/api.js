@@ -1,4 +1,5 @@
-const BACKEND_URL = "http://localhost:8000"; // Adjust if deployed
+// Get the backend URL from environment variable
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 // Basic ingestion of text
 export async function ingestText(text) {
@@ -64,6 +65,36 @@ export async function askAboutArt({
     throw new Error(`Ask about art error: ${res.statusText}`);
   }
   return res.json();
+}
+
+// Analyze artwork using the /ask-image endpoint
+export async function analyzeArtwork(file, topK = 3, threshold = 0.2, useGptSummary = true) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("top_k", topK);
+  formData.append("threshold", threshold);
+  formData.append("use_gpt_summary", useGptSummary);
+
+  try {
+    console.log(`Analyzing artwork: ${file.name} (${Math.round(file.size / 1024)} KB)`);
+    
+    const response = await fetch(`${BACKEND_URL}/ask-image`, {
+      method: "POST",
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errMsg = await response.text();
+      throw new Error(`Error: ${response.status} - ${errMsg}`);
+    }
+    
+    const data = await response.json();
+    console.log("Analysis complete:", Object.keys(data));
+    return data;
+  } catch (err) {
+    console.error("Analysis error:", err);
+    throw err;
+  }
 }
 
 // Test Exa API integration
